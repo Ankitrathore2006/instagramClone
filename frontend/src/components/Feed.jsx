@@ -9,8 +9,8 @@ import { Link } from "react-router-dom";
 
 export default function Feed() {
   const { fetchFeed, isLoading } = usePostStore();
- const { suggestedUsers, fetchSuggestedUsers, followUser, authUser, logout } = useAuthStore();
-
+  const { suggestedUsers, fetchSuggestedUsers, followUser, unfollowUser, authUser, logout } = useAuthStore();
+  console.log("Suggested Users:", suggestedUsers);
 
 
   const [posts, setPosts] = useState([]);
@@ -23,14 +23,14 @@ export default function Feed() {
     loadFeed();
   }, []);
 
-useEffect(() => {
-  fetchSuggestedUsers();
-}, []);
+  useEffect(() => {
+    fetchSuggestedUsers();
+  }, []);
 
   return (
     <div className="pag">
       <div className="d1">
-        
+
 
         {/* POSTS */}
         <div className="post pt-11">
@@ -55,20 +55,20 @@ useEffect(() => {
 
       {/* RIGHT SIDEBAR */}
       <div className="d2">
-          <Link to="/profile">
-        <div className="porfile-d">
-          <div>
-            <img src={authUser.profilePic} alt="" />
+        <Link to="/profile">
+          <div className="porfile-d">
             <div>
-              <strong>{authUser.userName}</strong>
-              <p>{authUser.fullName}</p>
+              <img src={authUser.profilePic} alt="" />
+              <div>
+                <strong>{authUser.userName}</strong>
+                <p>{authUser.fullName}</p>
+              </div>
+            </div>
+            <div className="et">
+              <a onClick={logout}>Logout</a>
             </div>
           </div>
-          <div className="et">
-            <a onClick={logout}>Logout</a>
-          </div>
-        </div>
-          </Link>
+        </Link>
 
         <div className="sugg">
           <div className="sug1">
@@ -76,33 +76,26 @@ useEffect(() => {
             <a href="/search">See All</a>
           </div>
 
-          {suggestedUsers?.length > 0 ? (
-            suggestedUsers.slice(0, 5).map((user) => (
-              <div className="porfile-d" key={user._id}>
-                <div>
-                  <img
-                    src={user.profilePic || "/avatar.png"}
-                    alt={user.userName}
-                  />
-                  <div>
-                    <strong>{user.userName}</strong>
-                    <p>{user.fullName}</p>
-                  </div>
-                </div>
+        {suggestedUsers?.length > 0 ? (
+  suggestedUsers.slice(0, 5).map((user) => (
+    <Link to={`/user/${user._id}`} key={user._id}>
+    <div className="porfile-d" key={user._id}>
+      <div>
+        <img src={user.profilePic || "/avatar.png"} alt={user.userName} />
+        <div>
+          <strong>{user.userName}</strong>
+          <p>{user.fullName}</p>
+        </div>
+      </div>
+    
 
-                <div className="et">
-                  <button
-                    onClick={() => followUser(user._id)}
-                    className="text-blue-500 font-semibold"
-                  >
-                    Follow
-                  </button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-center text-gray-400 my-5">No suggestions</p>
-          )}
+    </div>
+    </Link>
+  ))
+) : (
+  <p className="text-center text-gray-400 my-5">No suggestions</p>
+)}
+
 
 
           <div className="text1 mt-5">

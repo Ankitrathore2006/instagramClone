@@ -18,6 +18,11 @@ This project supports **user authentication, posts, likes, comments, follow/unfo
 - Followers & following lists
 - Follow / Unfollow users
 
+### 💬 Real-time Chat
+- Messaging between users
+- View message history
+- Real-time notifications for new messages
+
 ### 🖼️ Posts
 - Create posts with images
 - View feed posts

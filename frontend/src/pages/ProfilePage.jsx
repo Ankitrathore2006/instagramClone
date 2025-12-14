@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { usePostStore } from "../store/usePostStore";
 import { Camera, Mail, User, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import PostCard from "../components/PostCard";
 
 const ProfilePage = () => {
@@ -41,6 +42,7 @@ const ProfilePage = () => {
     };
   };
 
+  console.log("User Posts:", followingList);
   if (!authUser) return <p className="text-center pt-10">Loading profile...</p>;
 
   return (
@@ -160,7 +162,7 @@ const ProfilePage = () => {
 
       {/* POST MODAL */}
       {selectedPost && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 pt-5 overflow-scroll bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-base-100 max-w-lg w-full rounded-lg overflow-hidden relative">
             {/* Close Button */}
             <button
@@ -178,7 +180,7 @@ const ProfilePage = () => {
 
       {/* Followers Modal */}
       {showFollowersModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div className="fixed inset-0 pt-5 overflow-scroll bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-base-200 rounded-lg p-6 w-96 relative">
             <button
               className="absolute top-2 right-2"
@@ -188,9 +190,10 @@ const ProfilePage = () => {
             </button>
             <h3 className="text-lg font-semibold mb-4">Followers</h3>
             <ul className="space-y-2 max-h-80 overflow-y-auto">
-              {followersList.length > 0 ? (
-                followersList.map((user) => (
-                  <li key={user._id} className="flex items-center gap-3">
+        {followersList.length > 0 ? (
+          followersList.map((user) => (
+              <Link to={`/user/${user}`}>
+                  <li key={user} className="flex items-center gap-3">
                     <img
                       src={user.profilePic || "/avatar.png"}
                       alt={user.fullName}
@@ -198,6 +201,7 @@ const ProfilePage = () => {
                     />
                     <span>{user.fullName}</span>
                   </li>
+              </Link>
                 ))
               ) : (
                 <p>No followers yet</p>
@@ -208,35 +212,68 @@ const ProfilePage = () => {
       )}
 
       {/* Following Modal */}
-      {showFollowingModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-base-200 rounded-lg p-6 w-96 relative">
-            <button
-              className="absolute top-2 right-2"
-              onClick={() => setShowFollowingModal(false)}
-            >
-              <X />
-            </button>
-            <h3 className="text-lg font-semibold mb-4">Following</h3>
-            <ul className="space-y-2 max-h-80 overflow-y-auto">
-              {followingList.length > 0 ? (
-                followingList.map((user) => (
-                  <li key={user._id} className="flex items-center gap-3">
+{showFollowingModal && (
+  <div className="fixed inset-0 pt-5 overflow-scroll bg-black bg-opacity-50 flex justify-center items-start z-50">
+    <div className="bg-base-200 rounded-lg p-6 w-96 relative mt-10">
+      <button
+        className="absolute top-2 right-2"
+        onClick={() => setShowFollowingModal(false)}
+      >
+        <X />
+      </button>
+      <h3 className="text-lg font-semibold mb-4">Following</h3>
+      <ul className="space-y-2 max-h-80 overflow-y-auto">
+        {followingList.length > 0 ? (
+          followingList.map((user) => (
+            <li key={user}>
+              <Link to={`/user/${user}`}>
+                <div className="porfile-d flex items-center justify-between p-2 hover:bg-base-300 rounded-lg cursor-pointer">
+                  <div className="flex items-center gap-3">
                     <img
                       src={user.profilePic || "/avatar.png"}
-                      alt={user.fullName}
+                      alt={user.userName}
                       className="w-8 h-8 rounded-full"
                     />
-                    <span>{user.fullName}</span>
-                  </li>
-                ))
-              ) : (
-                <p>No following yet</p>
-              )}
-            </ul>
-          </div>
-        </div>
-      )}
+                    <div>
+                      <strong>{user.userName}</strong>
+                      <p className="text-sm text-zinc-500">{user.fullName}</p>
+                    </div>
+                  </div>
+
+                  <div className="et">
+                    {user.followers?.includes(currentUser?._id) ? (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault(); 
+                          unfollowUser(user._id);
+                        }}
+                        className="text-red-500 font-semibold"
+                      >
+                        Unfollow
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault(); 
+                          followUser(user._id);
+                        }}
+                        className="text-blue-500 font-semibold"
+                      >
+                        Follow
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            </li>
+          ))
+        ) : (
+          <p className="text-center text-gray-400 my-5">No following yet</p>
+        )}
+      </ul>
+    </div>
+  </div>
+)}
 
       {/* Account Info */}
       <div className="bg-base-300 rounded-xl p-6 max-w-2xl mx-auto mt-6">

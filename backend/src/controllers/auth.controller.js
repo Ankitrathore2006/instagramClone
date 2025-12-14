@@ -219,23 +219,23 @@ export const userSuggestionid = async (req, res) => {
 
     const userId = req.user._id;
     const currentUser = await User.findById(userId).select("following");
+
     const following = currentUser?.following || [];
 
-    const suggestions = await User.find({
-      _id: {
-        $ne: userId,     
-        $nin: following, 
-      },
+    const allUsers = await User.find({
+      _id: { $ne: userId } 
     })
       .select("_id fullName userName profilePic")
-      .limit(10);
+      .limit(100);
 
-    res.status(200).json(suggestions);
+    res.status(200).json(allUsers);
   } catch (error) {
     console.error("Error in userSuggestionid:", error.message);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
 
 export const getUserById = async (req, res) => {

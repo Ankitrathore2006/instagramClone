@@ -11,6 +11,7 @@ router.post("/logout", logout);
 router.put("/update-profile", protectRoute, updateProfile);
 
 router.post("/userSuggestionid", protectRoute, userSuggestionid);
+
 router.get("/user/:id", protectRoute, getUserById);
 
 router.get("/SearchUser", protectRoute, SearchUser);

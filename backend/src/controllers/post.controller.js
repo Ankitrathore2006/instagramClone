@@ -14,7 +14,6 @@ export const createPost = async (req, res) => {
 
     let uploadedImage = imageUrl;
 
-    // If base64 image is sent
     if (imageUrl.startsWith("data:image")) {
       const uploadRes = await cloudinary.uploader.upload(imageUrl);
       uploadedImage = uploadRes.secure_url;

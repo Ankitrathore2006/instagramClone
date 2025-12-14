@@ -139,7 +139,7 @@ export default function PostCard({ post, posts, setPosts }) {
 
       {/* COMMENTS MODAL */}
       {showComments && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+        <div className="fixed inset-0 pt-5 z-50 bg-black/50 flex items-center justify-center">
           <div className="bg-white w-full max-w-md rounded-lg shadow-lg">
 
             <div className="flex justify-between items-center p-4 border-b">

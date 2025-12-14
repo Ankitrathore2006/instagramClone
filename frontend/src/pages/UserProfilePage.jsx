@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { axiosInstance } from "../lib/axios";
 import { X } from "lucide-react";
 import PostCard from "../components/PostCard";
@@ -7,7 +7,6 @@ import { useAuthStore } from "../store/useAuthStore";
 
 const UserProfilePage = () => {
   const { id } = useParams();
-
   const { authUser, followUser, unfollowUser } = useAuthStore();
 
   const [user, setUser] = useState(null);
@@ -19,7 +18,6 @@ const UserProfilePage = () => {
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [followLoading, setFollowLoading] = useState(false);
 
-  // ---------------- FETCH USER ----------------
   const fetchUserById = async (userId) => {
     try {
       if (!userId) return null;
@@ -31,7 +29,6 @@ const UserProfilePage = () => {
     }
   };
 
-  // ---------------- FETCH POSTS ----------------
   const fetchPostsByUser = async (userId) => {
     if (!userId) return;
     setLoadingPosts(true);
@@ -46,22 +43,18 @@ const UserProfilePage = () => {
     }
   };
 
-  // ---------------- LOAD PROFILE ----------------
   useEffect(() => {
     const loadProfile = async () => {
       setLoadingProfile(true);
       const userData = await fetchUserById(id);
-
       if (userData?._id) {
         setUser(userData);
         await fetchPostsByUser(userData._id);
       } else {
         setUser(null);
       }
-
       setLoadingProfile(false);
     };
-
     loadProfile();
   }, [id]);
 
@@ -71,26 +64,21 @@ const UserProfilePage = () => {
   const followersList = user.followers || [];
   const followingList = user.following || [];
 
-  // ---------------- FOLLOW CHECK ----------------
   const isFollowing =
     authUser &&
     followersList.some((f) =>
       typeof f === "string" ? f === authUser._id : f._id === authUser._id
     );
 
-  // ---------------- FOLLOW / UNFOLLOW ----------------
   const handleFollowToggle = async () => {
     if (!authUser || authUser._id === user._id) return;
-
     try {
       setFollowLoading(true);
-
       if (isFollowing) {
         await unfollowUser(user._id);
       } else {
         await followUser(user._id);
       }
-
       const updatedUser = await fetchUserById(user._id);
       setUser(updatedUser);
     } catch (error) {
@@ -169,9 +157,7 @@ const UserProfilePage = () => {
           {/* POSTS GRID */}
           <div className="grid grid-cols-3 gap-2 mt-4 border-t pt-4 border-zinc-300">
             {loadingPosts ? (
-              <p className="col-span-3 text-center text-zinc-400">
-                Loading posts...
-              </p>
+              <p className="col-span-3 text-center text-zinc-400">Loading posts...</p>
             ) : userPosts.length > 0 ? (
               userPosts.map((post) => (
                 <img
@@ -182,9 +168,7 @@ const UserProfilePage = () => {
                 />
               ))
             ) : (
-              <p className="col-span-3 text-center text-zinc-400">
-                No posts yet
-              </p>
+              <p className="col-span-3 text-center text-zinc-400">No posts yet</p>
             )}
           </div>
         </div>
@@ -192,7 +176,7 @@ const UserProfilePage = () => {
 
       {/* POST MODAL */}
       {selectedPost && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 pt-5 overflow-scroll bg-black/70 z-50 flex items-center justify-center p-4">
           <div className="bg-base-100 max-w-lg w-full rounded-lg overflow-hidden relative">
             <button
               className="absolute top-2 right-2 z-50 p-2 bg-base-300 rounded-full"
@@ -201,6 +185,106 @@ const UserProfilePage = () => {
               <X className="w-5 h-5" />
             </button>
             <PostCard post={selectedPost} posts={userPosts} setPosts={() => {}} />
+          </div>
+        </div>
+      )}
+
+      {/* FOLLOWERS MODAL */}
+      {showFollowersModal && (
+        <div className="fixed inset-0 pt-5 overflow-scroll bg-black bg-opacity-50 flex justify-center items-start z-50">
+          <div className="bg-base-200 rounded-lg p-6 w-96 relative mt-10">
+            <button
+              className="absolute top-2 right-2"
+              onClick={() => setShowFollowersModal(false)}
+            >
+              <X />
+            </button>
+            <h3 className="text-lg font-semibold mb-4">Followers</h3>
+            <ul className="space-y-2 max-h-80 overflow-y-auto">
+              {followersList.length > 0 ? (
+                followersList.map((follower) => (
+                  <li key={follower._id || follower}>
+                    <Link to={`/user/${typeof follower === "string" ? follower : follower._id}`}>
+                      <div className="porfile-d flex items-center justify-between p-2 hover:bg-base-300 rounded-lg cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={follower.profilePic || "/avatar.png"}
+                            alt={follower.fullName || "User"}
+                            className="w-8 h-8 rounded-full"
+                          />
+                          <div>
+                            <strong>{follower.userName || follower.fullName}</strong>
+                            <p className="text-sm text-zinc-500">{follower.fullName}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <p className="text-center text-gray-400 my-5">No followers yet</p>
+              )}
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* FOLLOWING MODAL */}
+      {showFollowingModal && (
+        <div className="fixed inset-0 pt-5 overflow-scroll bg-black bg-opacity-50 flex justify-center items-start z-50">
+          <div className="bg-base-200 rounded-lg p-6 w-96 relative mt-10">
+            <button
+              className="absolute top-2 right-2"
+              onClick={() => setShowFollowingModal(false)}
+            >
+              <X />
+            </button>
+            <h3 className="text-lg font-semibold mb-4">Following</h3>
+            <ul className="space-y-2 max-h-80 overflow-y-auto">
+              {followingList.length > 0 ? (
+                followingList.map((following) => (
+                  <li key={following._id || following}>
+                    <Link to={`/user/${typeof following === "string" ? following : following._id}`}>
+                      <div className="porfile-d flex items-center justify-between p-2 hover:bg-base-300 rounded-lg cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={following.profilePic || "/avatar.png"}
+                            alt={following.userName || "User"}
+                            className="w-8 h-8 rounded-full"
+                          />
+                          <div>
+                            <strong>{following.userName || following.fullName}</strong>
+                            <p className="text-sm text-zinc-500">{following.fullName}</p>
+                          </div>
+                        </div>
+                        <div className="et">
+                          {authUser && authUser._id !== (following._id || following) && (
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                (following.followers?.includes(authUser._id)
+                                  ? unfollowUser
+                                  : followUser
+                                )(typeof following === "string" ? following : following._id);
+                              }}
+                              className={`font-semibold ${
+                                following.followers?.includes(authUser._id)
+                                  ? "text-red-500"
+                                  : "text-blue-500"
+                              }`}
+                            >
+                              {following.followers?.includes(authUser._id) ? "Unfollow" : "Follow"}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                <p className="text-center text-gray-400 my-5">No following yet</p>
+              )}
+            </ul>
           </div>
         </div>
       )}

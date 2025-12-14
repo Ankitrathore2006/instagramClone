@@ -136,13 +136,20 @@ export const useAuthStore = create((set, get) => ({
 
 fetchSuggestedUsers: async () => {
   try {
-    const res = await axiosInstance.get("/auth/userSuggestionid");
-    set({ suggestedUsers: res.data });
+    const res = await axiosInstance.post("/auth/userSuggestionid");
+
+    if (Array.isArray(res.data)) {
+      set({ suggestedUsers: res.data });
+    } else {
+      console.warn("Unexpected response format for suggested users:", res.data);
+      set({ suggestedUsers: [] });
+    }
   } catch (error) {
-    console.log("Error fetching suggested users:", error);
+    console.error("Error fetching suggested users:", error);
     set({ suggestedUsers: [] });
   }
 },
+
 
 
 fetchUserById: async (id) => {
